@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carta de Amor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a0a 100%);
+            font-family: 'Georgia', serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        .hearts-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 20px;
+            color: rgba(255, 50, 80, 0.3);
+            animation: float 15s infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .screen {
+            display: none;
+            position: relative;
+            z-index: 2;
+            max-width: 700px;
+            width: 90%;
+            margin: 40px 20px;
+            background: rgba(20, 10, 10, 0.9);
+            padding: 60px 50px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(255, 0, 50, 0.3);
+            border: 2px solid rgba(255, 50, 80, 0.4);
+        }
+
+        .screen.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+
+        /* MESSAGE SCREEN */
+        .message-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a0a 100%);
+            z-index: 10;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .message-screen.active {
+            display: flex;
+            animation: fadeIn 1s;
+        }
+
+        .message-text {
+            color: #ff6b8a;
+            font-size: 2em;
+            text-align: center;
+            padding: 40px;
+            max-width: 800px;
+            animation: textGlow 2s infinite;
+        }
+
+        @keyframes textGlow {
+            0%, 100% {
+                text-shadow: 0 0 20px rgba(255, 51, 102, 0.5);
+            }
+            50% {
+                text-shadow: 0 0 40px rgba(255, 51, 102, 0.8);
+            }
+        }
+
+        .choice-buttons {
+            display: none;
+            gap: 30px;
+            margin-top: 40px;
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            justify-content: center;
+        }
+
+        .choice-buttons.active {
+            display: flex;
+            animation: fadeIn 1s;
+        }
+
+        .choice-btn {
+            padding: 20px 50px;
+            font-size: 1.3em;
+            background: linear-gradient(135deg, #ff3366, #ff6b8a);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Georgia', serif;
+            box-shadow: 0 10px 30px rgba(255, 51, 102, 0.3);
+        }
+
+        .choice-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(255, 51, 102, 0.5);
+        }
+
+        .choice-btn.no-btn {
+            background: linear-gradient(135deg, #663366, #8b5a8b);
+            position: absolute;
+            transition: all 0.3s ease;
+        }
+
+        /* LOGIN SCREEN */
+        .login-icon {
+            text-align: center;
+            font-size: 60px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        h1 {
+            color: #ff3366;
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(255, 51, 102, 0.5);
+        }
+
+        .login-form {
+            margin-top: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            color: #ff6b8a;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 50px 12px 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(255, 50, 80, 0.4);
+            border-radius: 8px;
+            color: #ffb3c6;
+            font-size: 1em;
+            font-family: 'Georgia', serif;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #ff3366;
+            box-shadow: 0 0 15px rgba(255, 51, 102, 0.3);
+        }
+
+        .password-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-wrapper input {
+            padding-right: 50px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #ff6b8a;
+            cursor: pointer;
+            font-size: 1.3em;
+            transition: all 0.3s;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        .toggle-password:hover {
+            color: #ff3366;
+            transform: translateY(-50%) scale(1.15);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #ff3366, #ff6b8a);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 51, 102, 0.4);
+        }
+
+        .hint-box {
+            background: rgba(255, 51, 102, 0.1);
+            border: 1px solid rgba(255, 50, 80, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            color: #ffb3c6;
+            line-height: 1.6;
+        }
+
+        .hint-title {
+            color: #ff3366;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .error-message {
+            color: #ff4444;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.95em;
+        }
+
+        /* LETTER SCREEN */
+        .envelope-icon {
+            text-align: center;
+            font-size: 60px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        .letter-content {
+            color: #ffb3c6;
+            line-height: 1.8;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+
+        .letter-content p {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .signature {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .next-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #ff3366, #ff6b8a);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Georgia', serif;
+            box-shadow: 0 10px 30px rgba(255, 51, 102, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 51, 102, 0.5);
+        }
+
+        .decorative-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff3366, transparent);
+            margin: 30px 0;
+        }
+
+        .heart-big {
+            text-align: center;
+            font-size: 40px;
+            margin: 20px 0;
+            animation: heartbeat 1.5s infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% {
+                transform: scale(1);
+            }
+            25% {
+                transform: scale(1.2);
+            }
+            50% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hearts-bg" id="hearts-bg"></div>
+    
+    <!-- LOGIN SCREEN -->
+    <div class="screen active" id="loginScreen">
+        <div class="login-icon">🔐</div>
+        
+        <h1>Bem-vinda!</h1>
+        
+        <p style="color: #ffb3c6; text-align: center; margin-bottom: 30px;">
+            Para continuar, você precisa descobrir o usuário e a senha...
+        </p>
+        
+        <div class="login-form">
+            <div class="form-group">
+                <label for="username">Usuário:</label>
+                <input type="text" id="username" placeholder="Digite o usuário">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Senha:</label>
+                <div class="password-wrapper">
+                    <input type="password" id="password" placeholder="Digite a senha">
+                    <button type="button" class="toggle-password" onclick="togglePassword()">👁️</button>
+                </div>
+            </div>
+            
+            <button class="btn" onclick="checkLogin()">Entrar</button>
+            <button class="btn" onclick="showHint()" style="background: linear-gradient(135deg, #663366, #8b5a8b); margin-top: 15px;">
+                💡 Preciso de uma dica
+            </button>
+            
+            <div id="errorMessage" class="error-message"></div>
+        </div>
+        
+        <div id="hintBox" class="hint-box" style="display: none;">
+            <div class="hint-title">🔍 Dica:</div>
+            <div id="hintText"></div>
+        </div>
+    </div>
+
+    <!-- MESSAGE SCREENS -->
+    <div class="message-screen" id="messageScreen">
+        <div class="message-text" id="messageText"></div>
+        <div class="choice-buttons" id="choiceButtons">
+            <button class="choice-btn" onclick="handleYes()">Sim</button>
+            <button class="choice-btn no-btn" onclick="handleNo()">Não</button>
+        </div>
+    </div>
+    
+    <!-- LETTER SCREEN -->
+    <div class="screen" id="letterScreen">
+        <div class="envelope-icon">💌</div>
+        
+        <h1>Para Carvalo</h1>
+        
+        <div class="decorative-line"></div>
+        
+        <div class="letter-content">
+            <p>
+                Carvalho,
+            </p>
+            <p>
+                Desde a época da escola tem algo em você que sempre me chamou atenção. Eu nunca falei nada, talvez por falta de coragem ou por achar que não era o momento… mas a verdade é que eu sempre te achei linda, de um jeito que marcou.
+            </p>
+            <p>
+                Hoje eu sou uma pessoa diferente: mais maduro, mais centrado e sabendo exatamente quem eu sou. Eu sou o tipo de homem que não gosta de enrolação, que prefere olhar nos olhos e falar a verdade. Gosto de resolver as coisas conversando, com calma, porque acredito que respeito e diálogo valem muito mais do que qualquer discussão boba.
+            </p>
+            <p>
+                Eu não sou qualquer um, não sou de joguinhos e nem de promessas vazias. Quando eu me interesso por alguém, é real, é sincero. E por tudo isso, queria te dizer que tenho vontade de te conhecer de verdade agora — sem pressa, sem pressão, só com honestidade e boa energia.
+            </p>
+            <p>
+                Se você sentir que vale a pena dar uma chance pra essa conversa, eu vou ficar feliz em mostrar quem eu sou hoje.
+            </p>
+        </div>
+        
+        <div class="heart-big">❤️</div>
+        
+        <div class="decorative-line"></div>
+        
+        <div class="signature">
+            <button class="next-btn" onclick="showFinalMessages()">
+                Continuar
+                <span style="font-size: 1.3em;">→</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Criar corações flutuantes
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.innerHTML = '❤';
+            heart.style.left = Math.random() * 100 + '%';
+            heart.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            heart.style.animationDelay = Math.random() * 5 + 's';
+            document.getElementById('hearts-bg').appendChild(heart);
+            
+            setTimeout(() => {
+                heart.remove();
+            }, 20000);
+        }
+
+        // Criar múltiplos corações
+        for (let i = 0; i < 15; i++) {
+            setTimeout(createHeart, i * 1000);
+        }
+
+        // Continuar criando corações
+        setInterval(createHeart, 2000);
+
+        // Sistema de dicas
+        let hintLevel = 0;
+        const hints = [
+            "🤔 O usuário é o nome de alguém que te acha linda de um bom tempo já... Pense em quem está escrevendo esta carta para você.",
+            "💭 O usuário tem duas palavras: um nome e um sobrenome. O nome começa com 'j' e o sobrenome começa com 'p'.",
+            "✨ O usuário completo é: joaoprell (exatamente assim, com minúsculas e sem espaço)",
+            "❤️ A senha tem a ver com o que ele quer que você seja para a vida dele... São 3 palavras juntas, sem espaços.",
+            "💕 A senha começa com 'amor' e termina com 'vida'. Ri Ri!!",
+            "🌹 A senha completa é: amordasuavida (tudo junto, sem espaços, tudo minúsculo)"
+        ];
+
+        // Toggle para mostrar/ocultar senha
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleBtn = document.querySelector('.toggle-password');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.textContent = '👁️';
+            }
+        }
+
+        function showHint() {
+            const hintBox = document.getElementById('hintBox');
+            const hintText = document.getElementById('hintText');
+            
+            if (hintLevel < hints.length) {
+                hintText.textContent = hints[hintLevel];
+                hintBox.style.display = 'block';
+                hintLevel++;
+            } else {
+                hintText.textContent = "Você já viu todas as dicas! Tente usar: Usuário: 'Joao Prell' e Senha: 'amordasuavida'";
+                hintBox.style.display = 'block';
+            }
+        }
+
+        // Mensagens sequenciais
+        const messages = [
+            "Oi, eu sou um personagem vindo da cabeça do Prell.",
+            "Me chamo Jubileu KKK.",
+            "Eu sei, o Prell é meio doido às vezes, mas é do tipo de loucura boa.",
+            "Porem é uma pessoa de bom coração.",
+            "E que não quer o mau de ninguem.",
+            "Faz um tempo que ele anda meio na dele, meio solitário... ",
+            "Dá pra ver no olhar dele que falta algo — ou melhor, alguém.",
+            "Alguém pra chamar de AMOR.",
+            "Assim sendo ",
+            "Ele quer te passar uma mensagem ",
+            "Isso que você está lendo é só uma amostra do quanto ele se dedica quando gosta de alguém.",
+            "Ele gosta de você faz tempo… desde a época da escola, segundo minhas fontes confiáveis Kkkkk",
+            "Ri Ri",
+            "Então agora vou cumprir meu papel de pombo-correio oficial:",
+            "Vai dar uma chance pra ele?"
+        ];
+
+        let currentMessageIndex = 0;
+        let isWaitingForChoice = false;
+
+        function showMessages() {
+            const messageScreen = document.getElementById('messageScreen');
+            const messageText = document.getElementById('messageText');
+            const choiceButtons = document.getElementById('choiceButtons');
+            
+            messageScreen.classList.add('active');
+            
+            function displayNextMessage() {
+                if (currentMessageIndex < messages.length) {
+                    // Fade in da mensagem
+                    messageText.textContent = messages[currentMessageIndex];
+                    messageText.style.animation = 'fadeIn 1s';
+                    
+                    currentMessageIndex++;
+                    
+                    // Se for a última mensagem (pergunta), mostrar botões
+                    if (currentMessageIndex === messages.length) {
+                        setTimeout(() => {
+                            showChoiceButtons();
+                            isWaitingForChoice = true;
+                        }, 1000);
+                    } else {
+                        // Após 4 segundos, fade out
+                        setTimeout(() => {
+                            messageText.style.animation = 'fadeOut 1s';
+                            
+                            // Após o fade out (1s), mostrar próxima mensagem
+                            setTimeout(displayNextMessage, 1000);
+                        }, 5000);
+                    }
+                } else if (!isWaitingForChoice) {
+                    // Após todas as mensagens, mostrar a carta
+                    setTimeout(() => {
+                        messageScreen.classList.remove('active');
+                        document.getElementById('letterScreen').classList.add('active');
+                    }, 1000);
+                }
+            }
+            
+            displayNextMessage();
+        }
+
+        function handleYes() {
+            const messageText = document.getElementById('messageText');
+            const choiceButtons = document.getElementById('choiceButtons');
+            const messageScreen = document.getElementById('messageScreen');
+            
+            // Esconder botões
+            choiceButtons.style.animation = 'fadeOut 1s';
+            messageText.style.animation = 'fadeOut 1s';
+            
+            setTimeout(() => {
+                choiceButtons.classList.remove('active');
+                choiceButtons.style.animation = '';
+                
+                // Mostrar mensagem "Você não vai se arrepender"
+                messageText.textContent = "Você não vai se arrepender!!";
+                messageText.style.animation = 'fadeIn 1s';
+                
+                // Após 4 segundos, fade out e mostrar carta
+                setTimeout(() => {
+                    messageText.style.animation = 'fadeOut 1s';
+                    
+                    setTimeout(() => {
+                        messageScreen.classList.remove('active');
+                        document.getElementById('letterScreen').classList.add('active');
+                    }, 1000);
+                }, 4000);
+            }, 1000);
+        }
+
+        function handleNo() {
+            // Não faz nada - o botão vai fugir antes de ser clicado
+        }
+
+        // Fazer o botão "Não" fugir quando o mouse se aproxima
+        function setupNoButtonEscape() {
+            const noBtn = document.querySelector('.no-btn');
+            const yesBtn = document.querySelector('.choice-btn:not(.no-btn)');
+            
+            if (!noBtn) return;
+            
+            // Função para mover o botão para posição aleatória
+            function moveButton() {
+                const messageScreen = document.getElementById('messageScreen');
+                const screenWidth = messageScreen.offsetWidth;
+                const screenHeight = messageScreen.offsetHeight;
+                
+                // Obter posição e tamanho do botão Sim
+                const yesRect = yesBtn.getBoundingClientRect();
+                const noRect = noBtn.getBoundingClientRect();
+                
+                let newX, newY;
+                let attempts = 0;
+                const maxAttempts = 20;
+                
+                // Tentar encontrar uma posição que não sobreponha o botão Sim
+                do {
+                    newX = Math.random() * (screenWidth - 300) - (screenWidth / 2 - 150);
+                    newY = Math.random() * 400 - 200;
+                    
+                    // Calcular onde o botão ficaria
+                    const potentialLeft = yesRect.left + newX;
+                    const potentialTop = yesRect.top + newY;
+                    const potentialRight = potentialLeft + noRect.width;
+                    const potentialBottom = potentialTop + noRect.height;
+                    
+                    // Verificar se não sobrepõe o botão Sim (com margem de segurança)
+                    const noOverlap = (
+                        potentialRight < yesRect.left - 20 ||
+                        potentialLeft > yesRect.right + 20 ||
+                        potentialBottom < yesRect.top - 20 ||
+                        potentialTop > yesRect.bottom + 20
+                    );
+                    
+                    if (noOverlap) break;
+                    attempts++;
+                } while (attempts < maxAttempts);
+                
+                noBtn.style.left = newX + 'px';
+                noBtn.style.top = newY + 'px';
+            }
+            
+            // Mover quando o mouse se aproxima
+            noBtn.addEventListener('mouseenter', moveButton);
+            
+            // Mover também em dispositivos touch
+            noBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                moveButton();
+            });
+            
+            // Posição inicial do botão Não
+            noBtn.style.left = '200px';
+            noBtn.style.top = '0px';
+        }
+        
+        // Mensagens finais
+        const finalMessages = [
+            "Oiiii, sou eu de novo, o Jubileu.",
+            "Espero que tenha gostado da carta que ele fez para você.",
+            "Parece até um correio elegante, porém mais tecnológico KKKKK.",
+            "Meio brega...",
+            "Mas acho que se ele fez isso pra você, parece que é importante.",
+            "Eu nunca vi ele fazendo isso pra ninguem...",
+            "NINGUEM!!",
+            "assustador...",
+            "KKK",
+            "Ele te manda bjos",
+            "FIM"
+        ];
+
+        let currentFinalMessageIndex = 0;
+
+        function showFinalMessages() {
+            const letterScreen = document.getElementById('letterScreen');
+            const messageScreen = document.getElementById('messageScreen');
+            const messageText = document.getElementById('messageText');
+            
+            // Esconder a carta
+            letterScreen.classList.remove('active');
+            
+            // Mostrar tela de mensagens
+            messageScreen.classList.add('active');
+            currentFinalMessageIndex = 0;
+            
+            function displayNextFinalMessage() {
+                if (currentFinalMessageIndex < finalMessages.length) {
+                    // Fade in da mensagem
+                    messageText.textContent = finalMessages[currentFinalMessageIndex];
+                    messageText.style.animation = 'fadeIn 1s';
+                    
+                    currentFinalMessageIndex++;
+                    
+                    // Após 4 segundos, fade out
+                    setTimeout(() => {
+                        messageText.style.animation = 'fadeOut 1s';
+                        
+                        // Após o fade out (1s), mostrar próxima mensagem
+                        setTimeout(displayNextFinalMessage, 1000);
+                    }, 5000);
+                } else {
+                    // Fim das mensagens - pode deixar a última mensagem na tela
+                    setTimeout(() => {
+                        messageScreen.style.animation = 'fadeOut 2s';
+                    }, 2000);
+                }
+            }
+            
+            displayNextFinalMessage();
+        }
+
+        // Chamar a função quando os botões aparecem
+        function showChoiceButtons() {
+            const choiceButtons = document.getElementById('choiceButtons');
+            choiceButtons.classList.add('active');
+            setTimeout(setupNoButtonEscape, 100);
+        }
+
+        function checkLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+            
+            if (username === 'joaoprell' && password === 'amordasuavida') {
+                // Login correto - mostrar mensagens sequenciais
+                document.getElementById('loginScreen').classList.remove('active');
+                showMessages();
+            } else {
+                // Login incorreto
+                errorMessage.textContent = '❌ Usuário ou senha incorretos. Tente novamente ou peça uma dica!';
+                
+                // Limpar mensagem após 3 segundos
+                setTimeout(() => {
+                    errorMessage.textContent = '';
+                }, 3000);
+            }
+        }
+
+        // Permitir login com Enter
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkLogin();
+            }
+        });
+
+        document.getElementById('username').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkLogin();
+            }
+        });
+    </script>
+</body>
+</html>
